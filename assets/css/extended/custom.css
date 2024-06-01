@@ -1,0 +1,31 @@
+.logo a:hover {
+    transition: 0.15s;
+    color: grey;
+}
+
+svg:hover {
+    transition: 0.15s;
+}
+
+.social-icons a:nth-child(1) svg:hover {
+    color: grey !important;
+}
+
+.social-icons a:nth-child(2) svg:hover {
+    color: grey !important;
+}
+
+#moon:hover {
+    transition: 0.15s;
+    color: deepskyblue;
+}
+
+#sun:hover {
+    transition: 0.15s;
+    color: gold;
+}
+
+#menu a:hover {
+    transition: 0.15s;
+    color: grey;
+}
