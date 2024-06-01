@@ -1,10 +1,11 @@
 ---
-title: "Kakaotalk Account Takeover"
+title: "1-click Exploit in South Korea's biggest mobile chat app"
 date: 2024-05-31T14:04:20+02:00
 lastmod: 2024-05-31T14:04:20+02:00
 author: "stulle123"
 tags: 
 - Android
+- XSS
 showToc: true
 TocOpen: true
 draft: false
@@ -27,8 +28,6 @@ A deep link validation issue in KakaoTalk `10.4.3` allows a remote adversary to 
 ## Context
 
 With more than 100 million downloads from the Google Playstore, KakaoTalk is South Korea's most popular chat app. Similar to other Asian apps such as WeChat, KakaoTalk is an "all-in" app including everyhing into one app (payment, ride-hailing services, shopping, e-mail, etc.). End-to-end encrypted (E2EE) messaging is not enabled per default in KakaoTalk. Regular chatrooms, where Kakao Corp. can access messages in transit, is the preferred way for many users. KakaoTalk does have an opt-in E2EE feature called "Secure Chat" but it doesn't support features such as group messaging or voice calling.
-
-The "Secure Chat" feature was added in 2014 after [revelations that KakaoTalk cooperated with the Korean government to spy on communications](https://www.bbc.com/news/blogs-trending-29555331). Around 400,000 active users left then to other more secure E2EE chat apps. As a response, KakaoTalk quickly added "Secure Chat" on top of its existing chat protocol to get users back.
 
 ## Entry Point: CommerceBuyActivity
 
