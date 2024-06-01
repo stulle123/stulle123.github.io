@@ -16,6 +16,12 @@ minify:
   disableXML: true
   # minifyOutput: true
 
+outputs:
+  home:
+    - JSON # necessary for search
+    - HTML
+    - RSS
+
 params:
   env: production # to enable google analytics, opengraph, twitter-cards and schema.
   title: stulle123
@@ -103,25 +109,28 @@ params:
 
   # for search
   # https://fusejs.io/api/options.html
-  # fuseOpts:
-  #   isCaseSensitive: false
-  #   shouldSort: true
-  #   location: 0
-  #   distance: 1000
-  #   threshold: 0.4
-  #   minMatchCharLength: 0
-  #   limit: 10 # refer: https://www.fusejs.io/api/methods.html#search
-  #   keys: ["title", "permalink", "summary", "content"]
+  fuseOpts:
+    isCaseSensitive: false
+    shouldSort: true
+    threshold: 0
+    minMatchCharLength: 1
+    limit: 10 # refer: https://www.fusejs.io/api/methods.html#search
+    keys: ["title", "permalink", "summary", "content"]
+
 menu:
   main:
     - identifier: About
       name: About
       url: about
       weight: 1
+    - identifier: Search
+      name: Search
+      url: search
+      weight: 2
     - identifier: Tags
       name: Tags
       url: /tags/
-      weight: 2
+      weight: 3
     # - identifier: example
     #   name: example.org
     #   url: https://example.org

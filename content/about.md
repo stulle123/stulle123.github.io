@@ -7,6 +7,7 @@ draft: false
 disableShare: true
 ShowWordCount: false
 ShowReadingTime: false
+searchHidden: true
 ---
 
 Hey. I'm Dawin, yet another security researcher.
