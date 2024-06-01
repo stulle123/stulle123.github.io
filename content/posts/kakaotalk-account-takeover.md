@@ -23,6 +23,12 @@ In this blog post we show how multiple low-hanging fruit vulnerabilities in Kaka
 
 First things first: [PoC||GTFO](#poc)
 
+{{< rawhtml >}} 
+<video width=100% controls>
+    <source src="https://github.com/stulle123/kakaotalk_analysis/assets/14765446/7fd439c5-b96b-49d9-b8b5-cd9be2a51fe9" type="video/mp4">
+</video>
+{{< /rawhtml >}}
+
 A deep link validation issue in KakaoTalk `10.4.3` allows a remote adversary to run any attacker-controlled JavaScript within a WebView. By running JavaScript, another non-exported WebView can be reached that leaks its access token in a HTTP request header. Ultimately, this access token can be used to takeover another user's account and read her/his chat messages by registering an attacker-controlled device. This bug got assigned with [CVE-2023-51219](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-51219) (as of May 2024 still in "reserved mode"). We also release our [tooling](https://github.com/stulle123/kakaotalk_analysis) so that fellow security researchers can dig into KakaoTalk's broad attack surface to find more bugs.
 
 ## Context
