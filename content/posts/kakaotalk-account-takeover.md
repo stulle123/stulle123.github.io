@@ -3,6 +3,7 @@ title: "1-click Exploit in South Korea's biggest mobile chat app"
 date: 2024-05-31T14:04:20+02:00
 lastmod: 2024-05-31T14:04:20+02:00
 author: "stulle123"
+summary: "Stealing another KakaoTalk user's chat messages with a simple 1-click exploit."
 tags: 
 - Android
 - XSS
@@ -29,7 +30,7 @@ First things first: [PoC||GTFO](#poc)
 </video>
 {{< /rawhtml >}}
 
-A deep link validation issue in KakaoTalk `10.4.3` allows a remote adversary to run any attacker-controlled JavaScript within a WebView. By running JavaScript, another non-exported WebView can be reached that leaks its access token in a HTTP request header. Ultimately, this access token can be used to takeover another user's account and read her/his chat messages by registering an attacker-controlled device. This bug got assigned with [CVE-2023-51219](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-51219) (as of May 2024 still in "reserved mode"). We also release our [tooling](https://github.com/stulle123/kakaotalk_analysis) so that fellow security researchers can dig into KakaoTalk's broad attack surface to find more bugs.
+A deep link validation issue in KakaoTalk `10.4.3` allows a remote adversary to run any attacker-controlled JavaScript within a WebView. By running JavaScript, another non-exported WebView can be reached that leaks its access token in a HTTP request header. Ultimately, this access token can be used to takeover another user's account and read her/his chat messages by registering an attacker-controlled device. This bug got assigned with [CVE-2023-51219](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-51219). We also release our [tooling](https://github.com/stulle123/kakaotalk_analysis) so that fellow security researchers can dig into KakaoTalk's broad attack surface to find more bugs.
 
 ## Context
 
