@@ -18,13 +18,13 @@ ShowWordCount: true
 UseHugoToc: true
 ---
 
-In this short series of blog posts I will show you how to fuzz Python native extensions with [Atheris](https://github.com/google/atheris), [libFuzzer](https://www.llvm.org/docs/LibFuzzer.html) and [AFL++](https://github.com/AFLplusplus/AFLplusplus).
+In this short series of blog posts I will show you how to fuzz Python native extensions with [Atheris](https://github.com/google/atheris), [libFuzzer](https://www.llvm.org/docs/LibFuzzer.html), and [AFL++](https://github.com/AFLplusplus/AFLplusplus).
 
-In this post I will focus on whitebox fuzzing which means the source code of the native extensions is available to us. In the next post, I will blog about blackbox or binary-only fuzzing which is the opposite case.
+In this post I focus on whitebox fuzzing which implies the source code of the native extensions is available. In the next post, I touch on blackbox or binary-only fuzzing which is the opposite case.
 
 ## Why should I fuzz native extensions?
 
-Behind the scenes many Python modules use C/C++ for running performance-critical code. For example, running `cloc` on numpy `1.26.4` results in 170,000 lines of C code. As we all know, C/C++ is prone to memory corruption and bugs in native extensions might even lead to escaping the Python sandbox (see [example exploit](https://medium.com/hackernoon/python-sandbox-escape-via-a-memory-corruption-bug-19dde4d5fea5) in numpy `1.11.0`).
+Behind the scenes, many Python modules use C/C++ to run performance-critical code. For example, running `cloc` on numpy `1.26.4` results in 170,000 lines of C code. As we all know, C/C++ is prone to memory corruption where bugs in native extensions might lead to escape from the Python sandbox (see [example exploit](https://medium.com/hackernoon/python-sandbox-escape-via-a-memory-corruption-bug-19dde4d5fea5) in numpy `1.11.0`).
 
 ```bash
 ~/numpy$ cloc *
@@ -72,7 +72,7 @@ Despite many other techniques for detecting bugs, fuzzing can be great and easy 
 
 ## How can I find fuzzing targets?
 
-If you have the source code available, this is more or less straightforward. For example, go to Github and identify native functions that parse obscure/complex data structures (e.g., file parsers). Ideally, such functions should handle inputs that can be controlled by an attacker via untrusted channels (e.g., sockets, files, etc.). Another interesting fuzzing target are functions that work with Python objects, see the warning from the [Python documentation](https://docs.python.org/3/c-api/memory.html):
+If you have the source code available, this is more or less straightforward. For example, go to Github and identify native functions that parse obscure/complex data structures (e.g., file parsers). Ideally, such functions should handle inputs that can be controlled by an attacker via untrusted channels (e.g., sockets, files, etc.). Functions that work with Python objects make for an interesting target too. See the warning from the [Python documentation](https://docs.python.org/3/c-api/memory.html):
 
 > To avoid memory corruption, extension writers should never try to operate on Python objects with the functions exported by the C library: malloc(), calloc(), realloc() and free().
 
@@ -80,7 +80,7 @@ In cases where you don't have the native extension's source code, you can simply
 
 ## Fuzz hello world extension with Atheris
 
-I prepared a hello world native extension as a vulnerable example to get you started. In this section we'll fuzz it with [Atheris](https://github.com/google/atheris) (version `2.3.0`) which is a coverage-guided fuzzer for Python code as well as native C extensions.
+I prepared a hello world native extension as a vulnerable example to get you started. In this section, we'll fuzz it with [Atheris](https://github.com/google/atheris) (version `2.3.0`) which is a coverage-guided fuzzer for Python code as well as native C extensions.
 
 First, go through the required setup steps:
 
@@ -142,7 +142,7 @@ PyArray_Resize(PyArrayObject *self, PyArray_Dims *newshape, int refcheck,
     ((PyArrayObject_fields *)self)->data = new_data;
 ```
 
-As with the other example, let's first trigger the bug manually and then again with Atheris:
+As with the other example, let's trigger the bug manually first and then with Atheris:
 
 0) Trigger the bug with my example [trigger_bug_in_numpy_1.11.0.py](https://github.com/stulle123/fuzzing_native_python_extensions/blob/main/course/trigger_bug_in_numpy_1.11.0.py) script:
 
@@ -202,3 +202,11 @@ Fuzzing Python native extensions with [AFL++](https://github.com/AFLplusplus/AFL
 ```bash
 [fuzz e20a39df2e4a] /app $ afl-fuzz -i ./fuzzing_native_python_extensions/afl++/in -o /app/output -- ./afl_fuzz
 ```
+
+## Conclusion
+
+I this quick tutorial I've shown you how to fuzz Python C extensions with three popular fuzzers: [Atheris](https://github.com/google/atheris), [libFuzzer](https://www.llvm.org/docs/LibFuzzer.html), and [AFL++](https://github.com/AFLplusplus/AFLplusplus).
+
+In comparison, Atheris is the most straightforward one to setup. In terms of performance I can't tell which fuzzer is the fastest as I haven't done any measurements.
+
+In the next blog post I will show you how to fuzz Python C extensions for which you don't have the source code.
