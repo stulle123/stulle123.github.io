@@ -1,7 +1,7 @@
 ---
 title: "RCE in Cradlepoint's Cloud Management Platform"
-date: 2024-06-08T21:10:59+02:00
-lastmod: 2024-06-08T21:10:59+02:00
+date: 2024-06-20T22:00:25+02:00
+lastmod: 2024-06-20T22:00:25+02:00
 author: "stulle123"
 summary: "Blog post about how I found a RCE in Cradlepoint's Cloud Management Platform."
 tags: 
@@ -20,13 +20,13 @@ ShowWordCount: true
 UseHugoToc: true
 ---
 
-This is a write-up of a project I did last year together with [veganmosfet](https://github.com/veganmosfet) on the 4G Cradlepoint router `IBR600C-150M-B-EU` (firmware version `7.22.60`).
+[veganmosfet](https://github.com/veganmosfet) and I took a crack at a 4G Cradlepoint router `IBR600C-150M-B-EU` (firmware version `7.22.60`) last year.
 
-In this post, we will dig into the device's cloud management platform [NetCloud](https://accounts.cradlepointecm.com/). I'll show you how to poke at the TLS-encrypted communications and how I found a RCE bug in NetCloud by analyzing the traffic.
+In this post, we will dig into the device's cloud management platform [NetCloud](https://accounts.cradlepointecm.com/). I'll show you how to poke at the TLS-encrypted communications and how I found a RCE bug in NetCloud by analyzing network traffic.
 
 ## Disclaimer
 
-As of June 2024, some of the techniques and scripts presented here might not work anymore. Cradlepoint has patched our findings and released a new firmware update.
+As of June 2024, some of the techniques and scripts presented here might not work anymore. Cradlepoint released a new firmware update to patch the vulnerabilities we found.
 
 However, dumping the flash and [rooting](https://github.com/vegantransistor/Rooting-the-Cradlepoint-IBR600/tree/main) the device should still be possible.
 
@@ -34,29 +34,29 @@ We assume that you have a rooted Cradlepoint router or managed to dump the rootf
 
 ## Background
 
-At my previous company we used the Cradlepoint `IBR600C-150M-B-EU` router for our product's Internet connectivity. [veganmosfet](https://github.com/veganmosfet) and I decided to take a look at this critical off-the-shelf device.
+At my previous company, we used the Cradlepoint `IBR600C-150M-B-EU` router for our product's Internet connectivity. [veganmosfet](https://github.com/veganmosfet) and I decided to take a look at this critical off-the-shelf device.
 
-We found a couple of [issues](https://github.com/vegantransistor/Rooting-the-Cradlepoint-IBR600/tree/main) which we reported to Cradlepoint which is owned by Ericsson. Eventually, [veganmosfet](https://github.com/veganmosfet) presented our findings at [BSides Munich](https://www.youtube.com/watch?v=9vFiQT1vbfg) in Germany.
+We found a couple of [issues](https://github.com/vegantransistor/Rooting-the-Cradlepoint-IBR600/tree/main) which we reported to Cradlepoint who are owned by Ericsson. Eventually, [veganmosfet](https://github.com/veganmosfet) presented our findings at [BSides Munich](https://www.youtube.com/watch?v=9vFiQT1vbfg) in Germany.
 
 {{< youtube 9vFiQT1vbfg >}}
 
 ## The device
 
-The `IBR600C` is a small, semi-ruggedized LTE router for IoT applications. For remote management it can be hooked up to Cradlepoint's cloud platform [NetCloud](https://accounts.cradlepointecm.com/).
+The `IBR600C` is a small, semi-ruggedized LTE router for IoT applications. It connects to Cradlepoint’s cloud platform [NetCloud](https://accounts.cradlepointecm.com/) for remote management.
 
 ![IBR600C](/img/router.png)
 
-The router's firmware is based on Linux whereas all main applications are completely written in Python. This includes the web server, sshd, a custom shell, firmware upgrade and other services.
+The router's firmware is based on Linux whereas all main applications are completely written in Python. This includes the web server, sshd, a custom shell, firmware upgrade, and other services.
 
-[veganmosfet](https://github.com/veganmosfet) managed to dump the router's flash memory and installed a custom firmware image to obtain a [root shell](https://github.com/vegantransistor/Rooting-the-Cradlepoint-IBR600/tree/main).
+[veganmosfet](https://github.com/veganmosfet) dumped the router's flash memory and installed a custom firmware image to obtain a [root shell](https://github.com/vegantransistor/Rooting-the-Cradlepoint-IBR600/tree/main).
 
 Having root, it's relatively straightforward to intercept and poke at NetCloud communications. That's what I did ;-)
 
 ## Device registration with NetCloud
 
-To actually see some NetCloud traffic you need to register your router. TL;DR: Enter your [NetCloud credentials](https://accounts.cradlepointecm.com/) in the router's web interface and that's it.
+To actually see some NetCloud traffic, you need to register your router. All you need is to enter your [NetCloud credentials](https://accounts.cradlepointecm.com/) in the router's web interface.
 
-However, we have a root shell, so let's register the router via the CLI:
+Since we have a root shell, let's register the router via the CLI:
 
 0. Connect to the router via SSH:
 
@@ -85,13 +85,13 @@ Next, you can use the `netcloud` command to sign-up the router:
 [admin@IBR600C-a38: /]$ netcloud register --token_id=0 --token_secret=2b29ffccbda7e45df943dc1e82a096af04e24249
 ```
 
-If you now sniff on the router's Internet-facing network interface you should see some TLS traffic.
+On sniffing the router's Internet-facing network interface, you should see some TLS traffic.
 
-To understand how the registration process works you can take a look at our [testing script](https://github.com/veganmosfet/Rooting-the-Cradlepoint-IBR600/blob/main/netcloud/scripts/test_netcloud_registration.py). You can use it with your NetCloud credentials to register a router and to poke around. **Note**: As of June 2024, the script is probably outdated and you need to adapt it ;-)
+To understand how the registration process works, you can take a look at our [testing script](https://github.com/veganmosfet/Rooting-the-Cradlepoint-IBR600/blob/main/netcloud/scripts/test_netcloud_registration.py). You can use it with your NetCloud credentials to register a router and to poke around. **Note**: As of June 2024, the script is probably outdated and you need to adapt it ;-)
 
 ## Decrypt NetCloud TLS traffic
 
-You basically have three choices for logging plaintext NetCloud traffic (again a rooted device or access to the rootfs is required):
+You basically have three choices for logging plaintext NetCloud traffic (you will need a rooted device or access to the rootfs):
 
 0) Export the `SSLKEYLOGFILE` environment variable on a rooted device and dump traffic into a PCAP file.
 1) Add a fake CA certificate to a rooted device's trusted CA store and MITM traffic with mitmproxy.
@@ -249,7 +249,7 @@ $ mitmproxy --mode transparent \
 
 - In the script change the IP address to `127.0.0.1` and the payload's Python interpreter to just `python` or `python3`
 - Start `mitmdump` in one terminal window: `$ mitmdump --rawtcp --tcp-hosts ".*" -s mitmproxy_netcloud_rce.py`
-- In another window start a netcat listener
+- In another window, start a netcat listener
 - Tunnel a [license packet](https://github.com/veganmosfet/Rooting-the-Cradlepoint-IBR600/blob/main/netcloud/scripts/license_packet_TO_netcloud.bin): `$ cat license_packet_TO_netcloud.bin | openssl s_client -connect "google.com:443" -proxy localhost:8080`
 
 {{< box info >}}
@@ -264,6 +264,6 @@ On `2023-01-05` we disclosed our findings to Ericsson who quickly released a pat
 
 ## Conclusion
 
-In this blog post I've shown you how to intercept a Cradlepoint router's NetCloud communications. This is easily possible on a rooted device as you can add your own malicious CA certificate to MITM the TLS traffic.
+In this blog post, I've shown you how to intercept a Cradlepoint router's NetCloud communications. This is easily possible on a rooted device as you can add your own malicious CA certificate to MITM the TLS traffic.
 
 After all, this is possible because there is no Secure Boot in place that would protect against such modifications. Also, Cradlepoint has made some wrong trust assumptions, thinking TLS would be sufficient to protect pickled data payloads against tampering.
