@@ -205,8 +205,6 @@ Fuzzing Python native extensions with [AFL++](https://github.com/AFLplusplus/AFL
 
 ## Conclusion
 
-I this quick tutorial I've shown you how to fuzz Python C extensions with three popular fuzzers: [Atheris](https://github.com/google/atheris), [libFuzzer](https://www.llvm.org/docs/LibFuzzer.html), and [AFL++](https://github.com/AFLplusplus/AFLplusplus).
+Of the three popular fuzzers explored here, Atheris is the most straightforward one to setup. In terms of performance I can't tell which fuzzer is the fastest as I haven't done any measurements. I’ll leave that to another post in the future ;)
 
-In comparison, Atheris is the most straightforward one to setup. In terms of performance I can't tell which fuzzer is the fastest as I haven't done any measurements.
-
-In the next blog post I will show you how to fuzz Python C extensions for which you don't have the source code.
+In the next blog post, I will detail fuzzing for Python C extensions when source code isn’t available.
