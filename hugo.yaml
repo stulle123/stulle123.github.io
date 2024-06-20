@@ -18,15 +18,15 @@ minify:
 
 outputs:
   home:
-    - JSON # necessary for search
+    - JSON # required for search
     - HTML
     - RSS
 
 params:
   env: production # to enable google analytics, opengraph, twitter-cards and schema.
   title: stulle123
-  description: "ExampleSite description"
-  keywords: [Blog, Portfolio, PaperMod]
+  description: "stulle123's Security Blog"
+  keywords: [Security, Blog, Portfolio]
   author: stulle123
   # images: ["<link or path of image for opengraph, twitter-cards>"]
   DateFormat: "January 2, 2006"
