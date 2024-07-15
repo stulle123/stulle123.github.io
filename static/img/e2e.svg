@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 640 924"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="e2e.svg">
+  <metadata
+     id="metadata137">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1280"
+     inkscape:window-height="691"
+     id="namedview135"
+     showgrid="false"
+     inkscape:zoom="1.4448242"
+     inkscape:cx="320"
+     inkscape:cy="157.46469"
+     inkscape:window-x="0"
+     inkscape:window-y="31"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <defs
+     id="defs_block">
+    <filter
+       height="1.504"
+       id="filter_blur"
+       inkscape:collect="always"
+       width="1.1575"
+       x="-0.07875"
+       y="-0.252">
+      <feGaussianBlur
+         id="feGaussianBlur3780"
+         inkscape:collect="always"
+         stdDeviation="4.2" />
+    </filter>
+  </defs>
+  <title
+     id="title7">blockdiag</title>
+  <desc
+     id="desc9">seqdiag {
+  sender; server; receiver;
+  sender  -&gt; server [label = &quot;SCREATE&quot;];
+  sender &lt;-- server [label = &quot;Return PK&quot;];
+  sender  -&gt; server [label = &quot;SET_SK&quot;];
+  sender &lt;-- server [label = &quot;Status 0&quot;];
+  sender  -&gt; server [label = &quot;SWRITE&quot;];
+             server -&gt; receiver [label = &quot;MSG&quot;];
+             server &lt;- receiver [label = &quot;GET_SK&quot;];
+             server --&gt; receiver [label = &quot;Return SK&quot;];
+             server &lt;- receiver [label = &quot;GET_PK&quot;];
+             server --&gt; receiver [label = &quot;Return PK&quot;];
+             server &lt;- receiver [label = &quot;SWRITE&quot;];
+  sender &lt;- server [label = &quot;MSG&quot;]
+}
+</desc>
+  <rect
+     fill="rgb(0,0,0)"
+     height="761"
+     style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1"
+     width="8"
+     x="127"
+     y="141"
+     id="rect11" />
+  <rect
+     fill="rgb(0,0,0)"
+     height="65"
+     style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1"
+     width="8"
+     x="319"
+     y="141"
+     id="rect13" />
+  <rect
+     fill="rgb(0,0,0)"
+     height="65"
+     style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1"
+     width="8"
+     x="319"
+     y="271"
+     id="rect15" />
+  <rect
+     fill="rgb(0,0,0)"
+     height="455"
+     style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1"
+     width="8"
+     x="319"
+     y="401"
+     id="rect17" />
+  <rect
+     fill="rgb(0,0,0)"
+     height="65"
+     style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1"
+     width="8"
+     x="511"
+     y="466"
+     id="rect19" />
+  <rect
+     fill="rgb(0,0,0)"
+     height="65"
+     style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1"
+     width="8"
+     x="511"
+     y="596"
+     id="rect21" />
+  <rect
+     fill="rgb(0,0,0)"
+     height="65"
+     style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1"
+     width="8"
+     x="511"
+     y="726"
+     id="rect23" />
+  <rect
+     fill="rgb(0,0,0)"
+     height="40"
+     stroke="rgb(0,0,0)"
+     style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1"
+     width="128"
+     x="67"
+     y="46"
+     id="rect25" />
+  <rect
+     fill="rgb(0,0,0)"
+     height="40"
+     stroke="rgb(0,0,0)"
+     style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1"
+     width="128"
+     x="259"
+     y="46"
+     id="rect27" />
+  <rect
+     fill="rgb(0,0,0)"
+     height="40"
+     stroke="rgb(0,0,0)"
+     style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1"
+     width="128"
+     x="451"
+     y="46"
+     id="rect29" />
+  <path
+     d="M 128 80 L 128 912"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     stroke-dasharray="8 4"
+     id="path31"
+     style="" />
+  <rect
+     fill="moccasin"
+     height="761"
+     stroke="rgb(0,0,0)"
+     width="8"
+     x="124"
+     y="135"
+     id="rect33"
+     style="" />
+  <path
+     d="M 320 80 L 320 912"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     stroke-dasharray="8 4"
+     id="path35"
+     style="" />
+  <rect
+     fill="moccasin"
+     height="65"
+     stroke="rgb(0,0,0)"
+     width="8"
+     x="316"
+     y="135"
+     id="rect37"
+     style="" />
+  <rect
+     fill="moccasin"
+     height="65"
+     stroke="rgb(0,0,0)"
+     width="8"
+     x="316"
+     y="265"
+     id="rect39"
+     style="" />
+  <rect
+     fill="moccasin"
+     height="455"
+     stroke="rgb(0,0,0)"
+     width="8"
+     x="316"
+     y="395"
+     id="rect41"
+     style="" />
+  <path
+     d="M 512 80 L 512 912"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     stroke-dasharray="8 4"
+     id="path43"
+     style="" />
+  <rect
+     fill="moccasin"
+     height="65"
+     stroke="rgb(0,0,0)"
+     width="8"
+     x="508"
+     y="460"
+     id="rect45"
+     style="" />
+  <rect
+     fill="moccasin"
+     height="65"
+     stroke="rgb(0,0,0)"
+     width="8"
+     x="508"
+     y="590"
+     id="rect47"
+     style="" />
+  <rect
+     fill="moccasin"
+     height="65"
+     stroke="rgb(0,0,0)"
+     width="8"
+     x="508"
+     y="720"
+     id="rect49"
+     style="" />
+  <rect
+     fill="rgb(255,255,255)"
+     height="40"
+     stroke="rgb(0,0,0)"
+     width="128"
+     x="64"
+     y="40"
+     id="rect51"
+     style="" />
+  <text
+     fill="rgb(0,0,0)"
+     font-family="sans-serif"
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     text-anchor="middle"
+     textLength="36"
+     x="128"
+     y="66"
+     id="text53"
+     style="-inkscape-font-specification:cmr10;font-family:cmr10;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">sender</text>
+  <rect
+     fill="rgb(255,255,255)"
+     height="40"
+     stroke="rgb(0,0,0)"
+     width="128"
+     x="256"
+     y="40"
+     id="rect55"
+     style="" />
+  <text
+     fill="rgb(0,0,0)"
+     font-family="sans-serif"
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     text-anchor="middle"
+     textLength="36"
+     x="320"
+     y="66"
+     id="text57"
+     style="-inkscape-font-specification:cmr10;font-family:cmr10;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">server</text>
+  <rect
+     fill="rgb(255,255,255)"
+     height="40"
+     stroke="rgb(0,0,0)"
+     width="128"
+     x="448"
+     y="40"
+     id="rect59"
+     style="" />
+  <text
+     fill="rgb(0,0,0)"
+     font-family="sans-serif"
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     text-anchor="middle"
+     textLength="48"
+     x="512"
+     y="66"
+     id="text61"
+     style="-inkscape-font-specification:cmr10;font-family:cmr10;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">receiver</text>
+  <path
+     d="M 136 135 L 312 135"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     id="path63"
+     style="" />
+  <polygon
+     fill="rgb(0,0,0)"
+     points="304,131 312,135 304,139"
+     stroke="rgb(0,0,0)"
+     id="polygon65"
+     style="" />
+  <path
+     d="M 136 200 L 312 200"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     stroke-dasharray="4"
+     id="path67"
+     style="" />
+  <polygon
+     fill="rgb(0,0,0)"
+     points="144,196 136,200 144,204"
+     stroke="rgb(0,0,0)"
+     id="polygon69"
+     style="" />
+  <path
+     d="M 136 265 L 312 265"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     id="path71"
+     style="" />
+  <polygon
+     fill="rgb(0,0,0)"
+     points="304,261 312,265 304,269"
+     stroke="rgb(0,0,0)"
+     id="polygon73"
+     style="" />
+  <path
+     d="M 136 330 L 312 330"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     stroke-dasharray="4"
+     id="path75"
+     style="" />
+  <polygon
+     fill="rgb(0,0,0)"
+     points="144,326 136,330 144,334"
+     stroke="rgb(0,0,0)"
+     id="polygon77"
+     style="" />
+  <path
+     d="M 136 395 L 312 395"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     id="path79"
+     style="" />
+  <polygon
+     fill="rgb(0,0,0)"
+     points="304,391 312,395 304,399"
+     stroke="rgb(0,0,0)"
+     id="polygon81"
+     style="" />
+  <path
+     d="M 328 460 L 504 460"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     id="path83"
+     style="" />
+  <polygon
+     fill="rgb(0,0,0)"
+     points="496,456 504,460 496,464"
+     stroke="rgb(0,0,0)"
+     id="polygon85"
+     style="" />
+  <path
+     d="M 328 525 L 504 525"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     id="path87"
+     style="" />
+  <polygon
+     fill="rgb(0,0,0)"
+     points="336,521 328,525 336,529"
+     stroke="rgb(0,0,0)"
+     id="polygon89"
+     style="" />
+  <path
+     d="M 328 590 L 504 590"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     stroke-dasharray="4"
+     id="path91"
+     style="" />
+  <polygon
+     fill="rgb(0,0,0)"
+     points="496,586 504,590 496,594"
+     stroke="rgb(0,0,0)"
+     id="polygon93"
+     style="" />
+  <path
+     d="M 328 655 L 504 655"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     id="path95"
+     style="" />
+  <polygon
+     fill="rgb(0,0,0)"
+     points="336,651 328,655 336,659"
+     stroke="rgb(0,0,0)"
+     id="polygon97"
+     style="" />
+  <path
+     d="M 328 720 L 504 720"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     stroke-dasharray="4"
+     id="path99"
+     style="" />
+  <polygon
+     fill="rgb(0,0,0)"
+     points="496,716 504,720 496,724"
+     stroke="rgb(0,0,0)"
+     id="polygon101"
+     style="" />
+  <path
+     d="M 328 785 L 504 785"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     id="path103"
+     style="" />
+  <polygon
+     fill="rgb(0,0,0)"
+     points="336,781 328,785 336,789"
+     stroke="rgb(0,0,0)"
+     id="polygon105"
+     style="" />
+  <path
+     d="M 136 850 L 312 850"
+     fill="none"
+     stroke="rgb(0,0,0)"
+     id="path107"
+     style="" />
+  <polygon
+     fill="rgb(0,0,0)"
+     points="144,846 136,850 144,854"
+     stroke="rgb(0,0,0)"
+     id="polygon109"
+     style="" />
+  <text
+     fill="rgb(0,0,0)"
+     font-family="sans-serif"
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     text-anchor="middle"
+     textLength="42"
+     x="161"
+     y="133"
+     id="text111"
+     style="-inkscape-font-specification:cmr10;font-family:cmr10;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">SCREATE</text>
+  <text
+     fill="rgb(0,0,0)"
+     font-family="sans-serif"
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     text-anchor="middle"
+     textLength="54"
+     x="285"
+     y="198"
+     id="text113"
+     style="-inkscape-font-specification:cmr10;font-family:cmr10;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">Return PK</text>
+  <text
+     fill="rgb(0,0,0)"
+     font-family="sans-serif"
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     text-anchor="middle"
+     textLength="36"
+     x="158"
+     y="263"
+     id="text115"
+     style="-inkscape-font-specification:cmr10;font-family:cmr10;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">SET_SK</text>
+  <text
+     fill="rgb(0,0,0)"
+     font-family="sans-serif"
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     text-anchor="middle"
+     textLength="48"
+     x="288"
+     y="328"
+     id="text117"
+     style="-inkscape-font-specification:cmr10;font-family:cmr10;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">Status 0</text>
+  <text
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     textLength="36"
+     x="160"
+     y="393"
+     id="text119"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11px;font-family:cmr10;-inkscape-font-specification:cmr10;text-anchor:middle;fill:#000000">SWRITE</text>
+  <text
+     fill="rgb(0,0,0)"
+     font-family="sans-serif"
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     text-anchor="middle"
+     textLength="18"
+     x="341"
+     y="458"
+     id="text121"
+     style="-inkscape-font-specification:cmr10;font-family:cmr10;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal;">MSG</text>
+  <text
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     textLength="36"
+     x="484"
+     y="523"
+     id="text123"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11px;font-family:cmr10;-inkscape-font-specification:cmr10;text-anchor:middle;fill:#000000">GET_SK</text>
+  <text
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     textLength="54"
+     x="357"
+     y="588"
+     id="text125"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11px;font-family:cmr10;-inkscape-font-specification:cmr10;text-anchor:middle;fill:#000000">Return SK</text>
+  <text
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     textLength="36"
+     x="482"
+     y="653"
+     id="text127"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11px;font-family:cmr10;-inkscape-font-specification:cmr10;text-anchor:middle;fill:#000000">GET_PK</text>
+  <text
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     textLength="54"
+     x="357"
+     y="718"
+     id="text129"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11px;font-family:cmr10;-inkscape-font-specification:cmr10;text-anchor:middle;fill:#000000">Return PK</text>
+  <text
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     textLength="36"
+     x="482"
+     y="783"
+     id="text131"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11px;font-family:cmr10;-inkscape-font-specification:cmr10;text-anchor:middle;fill:#000000">SWRITE</text>
+  <text
+     font-size="11"
+     font-style="normal"
+     font-weight="normal"
+     textLength="18"
+     x="301"
+     y="848"
+     id="text133"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11px;font-family:cmr10;-inkscape-font-specification:cmr10;text-anchor:middle;fill:#000000">MSG</text>
+</svg>
